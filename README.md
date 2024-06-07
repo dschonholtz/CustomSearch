@@ -1,5 +1,7 @@
 # UNDER ACTIVE DEVELOPMENT
 
+Seriously, I literally have not run any of the code yet.
+
 # Searching an Orgs Images and Documents
 
 The purpose of this repository is to outline how you would go about building out a complete search system across images and text.
@@ -96,4 +98,4 @@ Things start getting more interesting when you start putting everything in a gra
 
 For example, if you submit a query, "widget 6 cracks" you might have a graph where widget 5 and 6 are connected to different sub-components. Maybe a large collection of widget 5 results show up naively, but then the widget 6 crack results are upscaled more than the widget 5 results are due to being a neighbor of another more relevant search term (widget 6 vs widget 5)
 
-Eventually, you will need to shard your vectors and do queries in parallel.
+Eventually, you will need to shard your vectors and do queries in parallel. You'd need A LOT of vectors though.
