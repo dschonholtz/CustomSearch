@@ -16,6 +16,18 @@ Out of scope:
 1. Filtering what you are searching. This should be easy to do later
 2. Scale. This will not be easy. But will be doable.
 
+## Files in this repo
+
+The python here is all pseudocode and should be treated as an introduction to the tools not as something you would actually want to use.
+
+[OCRMagic.py](OCRMagic.py) - This will help you do OCR on arbitrary images. Really naive take. You also might just want to do text extraction that has semantic understanding with an LLM. Rather than just naively using tesseract as I suggest in that code.
+
+[Server.py](Server.py) - This is a set of FastAPI webserver api stubs. This would probably be better as an OpenAPI spec. But This is what is in here for now.
+
+[SparseTextVectorGenerator.py](SparseTextVectorGenerator.py) - This introduces you to the ideas of tokenization and some other basic NLP concepts for sparse representation of text.
+
+[TrainEmbeddingModel.py](TrainEmbeddingModel.py) - This shows you how to load the open source CLIP model by openAI to show you how to finetune an existing embedding model with your own data. In reality, this of course becomes a large data engineering task with your own data pipeline.
+
 ## Search Pipeline
 
 1. Collect the relevant data you want to be able to search
