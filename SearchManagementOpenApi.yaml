@@ -1,0 +1,120 @@
+openapi: 3.0.0
+info:
+  title: File Management API
+  version: 1.0.0
+  description: API for managing documents and images, including adding, removing, and searching files.
+servers:
+  - url: http://localhost:8000
+paths:
+  /add-doc/:
+    post:
+      summary: Add a document
+      operationId: addDoc
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file_path:
+                  type: string
+                  description: Path to the document file
+      responses:
+        200:
+          description: Document added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  file_path:
+                    type: string
+
+  /add-image/:
+    post:
+      summary: Add an image
+      operationId: addImage
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file_path:
+                  type: string
+                  description: Path to the image file
+      responses:
+        200:
+          description: Image added successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  file_path:
+                    type: string
+
+  /remove/:
+    delete:
+      summary: Remove a file
+      operationId: removeFile
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                file_path:
+                  type: string
+                  description: Path to the file to be removed
+      responses:
+        200:
+          description: File removed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  file_path:
+                    type: string
+
+  /search/:
+    get:
+      summary: Search for files
+      operationId: searchFiles
+      parameters:
+        - in: query
+          name: k
+          schema:
+            type: integer
+          required: true
+          description: Number of results to return
+      responses:
+        200:
+          description: Search results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  results:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        file_path:
+                          type: string
+                        type:
+                          type: string
+                          enum:
+                            - doc
+                            - image

@@ -1,4 +1,8 @@
-# UNDER ACTIVE DEVELOPMENT
+# General Caveat
+
+I did everything in here in about 2 hours.
+It should be looked at as some thoughts on how to slap together the tools.
+It should be assumed that any thoughts on infrastructure and scalability would have to be considered separately.
 
 # Searching an Orgs Images and Documents
 
@@ -22,11 +26,11 @@ The python here is all pseudocode and should be treated as an introduction to th
 
 [OCRMagic.py](OCRMagic.py) - This will help you do OCR on arbitrary images. Really naive take. You also might just want to do text extraction that has semantic understanding with an LLM. Rather than just naively using tesseract as I suggest in that code.
 
-[Server.py](Server.py) - This is a set of FastAPI webserver api stubs. This would probably be better as an OpenAPI spec. But This is what is in here for now.
+[Server.py](Server.py) - This is a set of FastAPI webserver api stubs. I find it easier to read the python code, but you can also see the [OpenAPI](SearchManagementOpenApi.yaml) spec if you prefer.
 
 [SparseTextVectorGenerator.py](SparseTextVectorGenerator.py) - This introduces you to the ideas of tokenization and some other basic NLP concepts for sparse representation of text.
 
-[TrainEmbeddingModel.py](TrainEmbeddingModel.py) - This shows you how to load the open source CLIP model by openAI to show you how to finetune an existing embedding model with your own data. In reality, this of course becomes a large data engineering task with your own data pipeline.
+[TrainEmbeddingModel.py](TrainEmbeddingModel.py) - This shows you how to load the open source CLIP model by openAI to show you how to finetune an existing embedding model with your own data. This assumes you need a multi-modal, image and text, embedding model. In practice, this of course becomes a large data engineering task with your own data pipeline compared to this very simple script.
 
 ## Search Pipeline
 
@@ -66,6 +70,10 @@ Both TF-IDF and BM-25 fundamentally rely on the idea that if a word appears freq
 
 ### How to apply sparse techniques to images
 
+You'll notice that this is an extra step required for sparse techniques, as there isn't a sparse representation for images, as sparse techniques are just applying basics from NLP.
+
+Therefore, we have to get some natural language representation of the image, which fundamentally will not be as good as a model jointly trained on both images and text for your use case. That is a strong argument for dense retrieval methods.
+
 1. For any give image, collect any associated text
 2. Run the image through a Vision Language Model (VLM) that describes the image with some prompt relevant to the use case.
 3. Associate the image with the associated blocks of text from the VLM and your own metadata.
@@ -83,13 +91,13 @@ Embedding based retrieval is the sexy new hotness and is discussed in the next s
 5. Your users likely will just use keywords anyway! These often times are not actually as semantically close to the actual data you want when the semantic representations are based off of full sentences rather than keywords.
 6. Like with most ML tasks, the real solution is an ensemble model. Combining sparse vector and dense vector based retrieval often benchmarks the highest.
 
-## Embeddings/Vector powered retrieval
+## Embeddings/dense vector powered retrieval
 
 ### Get an embedding model
 
 There are a couple options here:
 
-1. Finetune an embedding model, for this I am pointing to [CLIP](https://github.com/openai/CLIP) from OpenAI, because it is good, easy to use, and open source. It is from 2021 so likely isn't SoTA anymore. You can see some rough python showing approximately how to do this in Train.py
+1. Finetune an embedding model, for this I am pointing to [CLIP](https://github.com/openai/CLIP) from OpenAI, because it is good, easy to use, and open source. It is from 2021 so it likely isn't SoTA anymore. You can see some rough python showing approximately how to do this in Train.py
 
 2. Alternatively, you can build an embedding model completely from scratch. Given the emergent properties we appear to see from generalized scale, I would be extremely surprised if this was worth doing, unless you have an ungodly amount of data both generalized and specialized.
 
@@ -109,3 +117,22 @@ Things start getting more interesting when you start putting everything in a gra
 For example, if you submit a query, "widget 6 cracks" you might have a graph where widget 5 and 6 are connected to different sub-components. Maybe a large collection of widget 5 results show up naively, but then the widget 6 crack results are upscaled more than the widget 5 results are due to being a neighbor of another more relevant search term (widget 6 vs widget 5)
 
 Eventually, you will need to shard your vectors and do queries in parallel. You'd need A LOT of vectors though.
+
+# How do I use AI with it?
+
+Host llama 70B with [VLLM](https://github.com/vllm-project/vllm) or [tensor-RT](https://docs.nvidia.com/deeplearning/tensorrt/) on your GPUs.
+
+VLLM doesn't do as much quantization and model optimization for your hardware, but is easier to set up.
+
+Then just have the model generate a search query or just run the users question automatically as a search query and then feed the results to your model.
+
+It is worth noting that there aren't a lot of good open source models that are multi-modal.
+
+But no matter who you are you should be able to run GPT-4 on an azure endpoint:
+https://learn.microsoft.com/en-us/legal/cognitive-services/openai/data-privacy#how-does-the-azure-openai-service-process-data
+
+The only tricky bit here would be you may have to negotiate with azure if you do not want your data crossing into international regions or to be processed by their content abuse filters. However, if your organization is large enough that should be perfectly tractable.
+
+Another option is AWS bedrock.
+Unlike azure, they actually do not say the models are stateless and claim your data is stored in your aws infra, otherwise they have reasonable security standards depending on your orgs needs.
+https://aws.amazon.com/bedrock/faqs/
