@@ -1,7 +1,5 @@
 # UNDER ACTIVE DEVELOPMENT
 
-Seriously, I literally have not run any of the code yet.
-
 # Searching an Orgs Images and Documents
 
 The purpose of this repository is to outline how you would go about building out a complete search system across images and text.
